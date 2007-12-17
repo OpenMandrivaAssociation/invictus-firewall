@@ -15,7 +15,6 @@ Source4: ucarp-down.sh
 License: GPL
 Group: System/Configuration/Networking
 Url: http://www.mandriva.com/
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 BuildArch: noarch
 Requires(post):  rpm-helper
 Requires(preun): rpm-helper
