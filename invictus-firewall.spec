@@ -1,6 +1,6 @@
 %define name invictus-firewall
 %define version 0.1
-%define release %mkrel 4
+%define release %mkrel 5
 %define service ct_sync
 
 Summary: Invictus Firewall
