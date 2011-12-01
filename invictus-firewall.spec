@@ -32,14 +32,14 @@ handle failover and ct_sync to replicate connection tracking state.
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 install -m755 -D %{SOURCE0} %{buildroot}%{_initrddir}/%{service}
 install -m644 -D %{SOURCE1} %{buildroot}%{_sysconfdir}/sysconfig/%{service}
 install -d %{buildroot}%{_datadir}/%{name}/
 install -m755 %{SOURCE2} %{SOURCE3} %{SOURCE4} %{buildroot}%{_datadir}/%{name}/
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %post
 %_post_service %{service}
