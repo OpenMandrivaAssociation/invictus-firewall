@@ -1,6 +1,0 @@
-sources:
-  "ct_sync.init:"	af3406ba6e0484c4fce90e6f9f92b99893500cc9
-  "ct_sync.sysconfig:"	4e28b5ef6a1e75d83dac12f35377c4c24169b132
-  "ucarp-action.sh:"	b3d827000b1160fe9f114b5e6d291ab4c60eec86
-  "ucarp-down.sh:"	607ec2d6b8cd49ff93ba1fc6733f585856305767
-  "ucarp-up.sh:"	6d25f72a5787d68ad1b79ede36189818d0cbba76

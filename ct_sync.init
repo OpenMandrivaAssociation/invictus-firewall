@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+### BEGIN INIT INFO
+# Provides: ct_sync
+# Required-Start: $network
+# Required-Stop: $network
+# Should-Start: shorewall
+# Should-Stop: shorewall
+# Default-Start: 2 3 4 5
+# Short-Description: Connection tracking state replication
+# Description: Connection tracking state replication service
+### END INIT INFO
+
+. /etc/init.d/functions
+
+CT_SYNC_CONF=/etc/sysconfig/ct_sync
+[ -f $CT_SYNC_CONF ] && . $CT_SYNC_CONF
+
+NAME=ct_sync
+
+if [ -n "$CMARKBIT" ]; then
+    HEXMARK=`printf 0x%0.8x $((1 << $CMARKBIT))`
+fi
+
+case "$1" in
+  start)
+        gprintf "Starting %s: " $NAME
+	if [ "$ENABLE" = "yes" -a -n "$INTERFACE" -a -n "$CMARKBIT" ]; then
+		# Marking traffic to be replicated
+		iptables -t mangle -A PREROUTING -m state --state NEW -j CONNMARK --set-mark $HEXMARK/$HEXMARK
+		# Prevent interaction between TCP window tracking and ct_sync
+		echo 1 > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_be_liberal
+		# Loading the ct_sync module
+		modprobe $NAME syncdev=$INTERFACE cmarkbit=$CMARKBIT
+	        RETVAL=$?
+	else
+		RETVAL=1
+	fi
+	[ $RETVAL -eq 0 ] && success || failure
+        echo
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$NAME
+        ;;
+  stop)
+        gprintf "Shutting down %s: " $NAME
+	if [ "$ENABLE" = "yes" -a -n "$INTERFACE" -a -n "$CMARKBIT" ]; then
+	    iptables -t mangle -D PREROUTING -m state --state NEW -j CONNMARK --set-mark $HEXMARK/$HEXMARK
+	    rmmod $NAME
+            RETVAL=$?
+	else
+	    RETVAL=1
+	fi
+	[ $RETVAL -eq 0 ] && success || failure
+        echo
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$NAME
+        ;;
+  status)
+        [ -f /var/lock/subsys/$NAME ]
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && gprintf "%s is running\n" $NAME || gprintf "%s is stopped\n" $NAME
+        ;;
+  restart|reload)
+        $0 stop
+        $0 start
+        ;;
+  condrestart)
+        [ -f /var/lock/subsys/$NAME ] && restart || :
+        ;;
+  *)
+        gprintf "Usage: %s {start|stop|status|restart}\n" "$0"
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL
